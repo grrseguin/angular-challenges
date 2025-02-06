@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { Todo } from './todo.model';
 import { TodoService } from './todo.service';
 
@@ -7,7 +7,7 @@ import { TodoService } from './todo.service';
   imports: [CommonModule],
   selector: 'app-root',
   template: `
-    <div *ngFor="let todo of todos">
+    <div *ngFor="let todo of todos()">
       {{ todo.title }}
       <button (click)="update(todo)">Update</button>
     </div>
@@ -15,19 +15,21 @@ import { TodoService } from './todo.service';
   styles: [],
 })
 export class AppComponent implements OnInit {
-  todos!: Todo[];
+  todos = signal<Todo[]>([]);
 
   constructor(private todoService: TodoService) {}
 
   ngOnInit(): void {
     this.todoService.getTodos().subscribe((todos) => {
-      this.todos = todos;
+      this.todos.set(todos);
     });
   }
 
   update(todo: Todo) {
     this.todoService.updateTodo(todo).subscribe((todoUpdated: Todo) => {
-      this.todos[todoUpdated.id - 1] = todoUpdated;
+      this.todos.update((todos) =>
+        todos.map((t) => (t.id === todoUpdated.id ? todoUpdated : t)),
+      );
     });
   }
 }
