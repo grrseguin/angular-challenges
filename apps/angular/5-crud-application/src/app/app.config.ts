@@ -1,6 +1,10 @@
 import { provideHttpClient } from '@angular/common/http';
-import { ApplicationConfig } from '@angular/core';
+import { ApplicationConfig, ErrorHandler } from '@angular/core';
+import { AppErrorHandler } from './AppErrorHandler';
 
 export const appConfig: ApplicationConfig = {
-  providers: [provideHttpClient()],
+  providers: [
+    provideHttpClient(),
+    { provide: ErrorHandler, useClass: AppErrorHandler },
+  ],
 };
